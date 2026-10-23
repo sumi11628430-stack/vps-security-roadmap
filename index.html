@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>VPS不正アクセス後にやること ロードマップ</title>
+<meta name="description" content="お名前.com デスクトップクラウドの不正アクセスを受けて、VPSでEA（自動売買）を動かしていた人がやることを順番にまとめた、個人による非公式の手順です。">
+<style>
+:root {
+  --bg: #f5f7f6;
+  --surface: #ffffff;
+  --surface-2: #eef3f2;
+  --text: #1f2a2e;
+  --muted: #56656b;
+  --line: #d5dfdd;
+  --accent: #2f6f73;
+  --accent-soft: #e1eeee;
+  --accent-text: #ffffff;
+  --done: #3d7a55;
+  --done-soft: #e4f1e8;
+  --skip: #6b7479;
+  --skip-soft: #eceeef;
+  --note: #8a6418;
+  --note-soft: #fbf3e2;
+  --warn: #b3261e;
+  --warn-soft: #fdeceb;
+  --warn-line: #e8a7a2;
+  --focus: #1b5fa8;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141a1c;
+    --surface: #1c2427;
+    --surface-2: #222c30;
+    --text: #e6eceb;
+    --muted: #a5b2b5;
+    --line: #34423f;
+    --accent: #7cc0c3;
+    --accent-soft: #233739;
+    --accent-text: #0f1a1b;
+    --done: #8fcfa3;
+    --done-soft: #1f3327;
+    --skip: #a3abaf;
+    --skip-soft: #2a3235;
+    --note: #e6c27a;
+    --note-soft: #33291a;
+    --warn: #ff9b92;
+    --warn-soft: #3a1e1c;
+    --warn-line: #7a3a35;
+    --focus: #8cbcf0;
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible + span, summary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+
+/* 非公式の表示 */
+.unofficial {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  font-size: 15px;
+  padding: 10px 0;
+  color: var(--muted);
+}
+.unofficial strong { color: var(--text); }
+
+/* ヘッダー */
+header.top { padding: 28px 0 12px; }
+h1 { font-size: 1.6rem; line-height: 1.45; margin: 0 0 12px; }
+.lead { font-size: 1.1rem; margin: 0 0 12px; }
+.meta { font-size: 15px; color: var(--muted); margin: 0; }
+.meta a { font-weight: 600; }
+
+/* 進み具合バー（上に固定） */
+.progress {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  padding: 10px 0;
+}
+.progress-row { display: flex; align-items: center; gap: 12px; }
+.progress-label { font-weight: 700; white-space: nowrap; font-size: 16px; }
+.progress-label small { font-weight: 400; color: var(--muted); font-size: 14px; }
+.bar { flex: 1; height: 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
+.bar > span { display: block; height: 100%; width: 0; background: var(--done); border-radius: 99px; transition: width .3s; }
+.all-done { margin: 6px 0 0; color: var(--done); font-weight: 700; display: none; }
+.all-done.show { display: block; }
+
+h2 { font-size: 1.3rem; margin: 36px 0 12px; line-height: 1.5; }
+
+/* 最初の確認 */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 16px;
+  margin: 0 0 14px;
+}
+.q-title { font-weight: 700; margin: 0 0 10px; }
+.choices { display: flex; flex-wrap: wrap; gap: 10px; }
+.choices label { position: relative; flex: 1 1 90px; }
+.choices input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.choices span {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 52px; padding: 8px 4px;
+  border: 2px solid var(--line); border-radius: 12px;
+  background: var(--surface); font-weight: 700; cursor: pointer;
+  font-size: 16px; white-space: nowrap;
+}
+.choices input:checked + span { border-color: var(--accent); background: var(--accent); color: var(--accent-text); }
+.q-hint { font-size: 15px; color: var(--muted); margin: 8px 0 0; }
+.q-result { margin: 4px 0 0; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); }
+
+/* ステップ */
+.step {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  margin: 0 0 14px;
+  overflow: hidden;
+}
+.step.is-done { border-color: var(--done); }
+.step-toggle {
+  width: 100%;
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  min-height: 72px;
+  background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.num {
+  flex: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 60px; height: 60px; border-radius: 12px;
+  background: var(--accent-soft); color: var(--accent);
+  line-height: 1;
+}
+.num small { font-size: 11px; font-weight: 700; letter-spacing: .05em; }
+.num b { font-size: 28px; margin-top: 2px; }
+.step.is-done .num { background: var(--done); color: var(--surface); }
+.step.is-skip:not(.is-done) .num { background: var(--skip-soft); color: var(--skip); }
+.step-title { flex: 1; font-weight: 700; font-size: 1.1rem; line-height: 1.5; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.badge { display: none; font-size: 13px; font-weight: 700; padding: 1px 10px; border-radius: 99px; line-height: 1.8; }
+.badge-done { background: var(--done-soft); color: var(--done); }
+.badge-skip { background: var(--skip-soft); color: var(--skip); }
+.badge-key { display: inline-block; background: var(--note-soft); color: var(--note); }
+.step.is-done .badge-done { display: inline-block; }
+.step.is-skip .badge-skip { display: inline-block; }
+.chev { flex: none; width: 12px; height: 12px; border-right: 3px solid var(--muted); border-bottom: 3px solid var(--muted); transform: rotate(45deg); margin: 0 6px 6px 0; transition: transform .2s; }
+.step.open .chev { transform: rotate(-135deg); margin: 6px 6px 0 0; }
+
+.step-body { display: none; padding: 0 16px 18px; border-top: 1px solid var(--line); }
+.step.open .step-body { display: block; }
+.step-body > :first-child { margin-top: 16px; }
+
+.why { background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; margin: 16px 0; }
+.why b { color: var(--accent); }
+.skip-note { display: none; background: var(--skip-soft); border-radius: 10px; padding: 10px 14px; margin: 16px 0; }
+.step.is-skip .skip-note { display: block; }
+.target { font-size: 15px; color: var(--muted); margin: 0; }
+
+ol.tasks { padding-left: 0; list-style: none; counter-reset: task; margin: 12px 0; }
+ol.tasks > li {
+  counter-increment: task;
+  position: relative;
+  padding: 10px 0 10px 44px;
+  border-bottom: 1px dashed var(--line);
+}
+ol.tasks > li:last-child { border-bottom: 0; }
+ol.tasks > li::before {
+  content: counter(task);
+  position: absolute; left: 0; top: 10px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-text);
+  font-weight: 700; font-size: 15px; line-height: 30px; text-align: center;
+}
+ul { padding-left: 1.3em; margin: 8px 0; }
+ul li { margin: 4px 0; }
+
+.ui { font-weight: 700; }
+.term { color: var(--muted); font-size: .92em; }
+
+.sub {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 12px 0;
+  background: var(--surface-2);
+}
+.sub h3 { font-size: 1.05rem; margin: 0 0 4px; line-height: 1.5; }
+.sub ol.tasks > li { border-bottom-color: var(--line); }
+
+.note { background: var(--note-soft); border-left: 5px solid var(--note); border-radius: 8px; padding: 10px 14px; margin: 14px 0; }
+.note b:first-child { color: var(--note); }
+.plain { margin: 12px 0; }
+
+.done-check {
+  display: flex; align-items: center; gap: 12px;
+  margin: 18px 0 0; padding: 14px 16px;
+  border: 2px solid var(--done); border-radius: 12px;
+  background: var(--done-soft);
+  font-weight: 700; cursor: pointer;
+  min-height: 56px;
+}
+.done-check input { width: 28px; height: 28px; accent-color: var(--done); flex: none; margin: 0; cursor: pointer; }
+
+.tools { display: flex; justify-content: flex-end; margin: 6px 0 0; }
+.btn-reset {
+  font: inherit; font-size: 15px; font-weight: 700;
+  min-height: 48px; padding: 8px 18px;
+  border: 2px solid var(--line); border-radius: 12px;
+  background: var(--surface); color: var(--text); cursor: pointer;
+}
+
+/* 注意コーナー（赤はここだけ） */
+.warn {
+  background: var(--warn-soft);
+  border: 2px solid var(--warn-line);
+  border-left: 8px solid var(--warn);
+  border-radius: 14px;
+  padding: 16px;
+  margin: 36px 0 14px;
+}
+.warn h2 { color: var(--warn); margin: 0 0 8px; }
+.warn ul { margin: 0; }
+
+/* よくある質問 */
+details.faq { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; margin: 0 0 10px; }
+details.faq summary {
+  cursor: pointer; font-weight: 700; padding: 14px 16px; min-height: 56px;
+  list-style: none; display: flex; gap: 10px; align-items: center;
+}
+details.faq summary::-webkit-details-marker { display: none; }
+details.faq summary::before { content: "Q"; flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); text-align: center; line-height: 30px; }
+details.faq > div { padding: 0 16px 14px 56px; }
+
+/* ウイルス対策ソフトごとの手順（開閉式） */
+details.sw { border: 1px solid var(--line); border-radius: 12px; margin: 10px 0; background: var(--surface-2); }
+details.sw summary {
+  cursor: pointer; font-weight: 700; padding: 12px 14px; min-height: 52px;
+  list-style: none; display: flex; align-items: center; gap: 10px;
+}
+details.sw summary::-webkit-details-marker { display: none; }
+details.sw summary::before { content: "＋"; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-text); text-align: center; line-height: 28px; }
+details.sw[open] summary::before { content: "－"; }
+details.sw > div { padding: 0 14px 12px; border-top: 1px solid var(--line); }
+
+footer { margin: 40px 0 0; padding: 20px 0 40px; border-top: 1px solid var(--line); font-size: 15px; color: var(--muted); }
+footer ul { padding-left: 1.2em; }
+
+@media (max-width: 420px) {
+  h1 { font-size: 1.4rem; }
+  .num { width: 52px; height: 52px; }
+  .num b { font-size: 24px; }
+  details.faq > div { padding-left: 16px; }
+}
+
+@media print {
+  body { font-size: 12pt; line-height: 1.6; background: #fff; color: #000; }
+  .progress { position: static; }
+  .step-body { display: block !important; }
+  .chev, .tools { display: none; }
+  .card, .warn, details.faq { break-inside: avoid-page; }
+  a { color: #000; }
+  a[href^="http"]::after { content: "（" attr(href) "）"; font-size: 10pt; }
+}
+</style>
+</head>
+<body>
+
+<div class="unofficial">
+  <div class="wrap"><strong>個人が作成した非公式の手順まとめです。</strong>お名前.com・各FX業者・各ソフトの公式ページではありません。</div>
+</div>
+
+<div class="wrap">
+  <header class="top">
+    <h1>VPS不正アクセス後にやること ロードマップ</h1>
+    <p class="lead">上から順番に進めれば大丈夫です。終わったらチェックを入れてください。</p>
+    <p class="meta">2026年10月24日時点の情報<br>
+      公式発表：<a href="https://www.onamae.com/news/article/11584" target="_blank" rel="noopener">お名前.com のお知らせ（新しいタブで開きます）</a></p>
+    <p class="meta">VPS（自宅のパソコンの代わりに24時間動かせる、ネット上の貸しパソコン）で、EA（MT4/MT5という取引ソフトで自動売買をするプログラム）を動かしていた人向けです。</p>
+  </header>
+</div>
+
+<div class="progress" aria-live="polite">
+  <div class="wrap">
+    <div class="progress-row">
+      <span class="progress-label" id="progressText">0 / 9 完了</span>
+      <div class="bar" role="progressbar" aria-label="進み具合" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0" id="bar"><span id="barFill"></span></div>
+    </div>
+    <p class="all-done" id="allDone">すべて完了しました。おつかれさまでした。</p>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <h2>最初の確認</h2>
+  <p>答えると、あなたに関係のないステップに「スキップ可」と表示されます。</p>
+
+  <div class="card">
+    <p class="q-title">Q1：VPSのChrome（ブラウザ＝ホームページを見るソフト）などで、Googleアカウントにログインしたことがありますか？</p>
+    <div class="choices" role="radiogroup" aria-label="Q1">
+      <label><input type="radio" name="q1" value="yes"><span>はい</span></label>
+      <label><input type="radio" name="q1" value="no"><span>いいえ</span></label>
+      <label><input type="radio" name="q1" value="unknown"><span>わからない</span></label>
+    </div>
+    <p class="q-hint">「わからない」は「はい」と同じ扱いになります（念のため対策します）。</p>
+  </div>
+
+  <div class="card">
+    <p class="q-title">Q2：使っていないFX口座はありますか？</p>
+    <div class="choices" role="radiogroup" aria-label="Q2">
+      <label><input type="radio" name="q2" value="yes"><span>はい</span></label>
+      <label><input type="radio" name="q2" value="no"><span>いいえ</span></label>
+    </div>
+  </div>
+
+  <p class="q-result" id="qResult">まだ答えていない質問があります。答えなくても、全部のステップを進めれば大丈夫です。</p>
+
+  <h2>やることリスト</h2>
+
+  <!-- STEP 1 -->
+  <section class="step" data-step="1">
+    <button type="button" class="step-toggle" aria-expanded="false" aria-controls="body1">
+      <span class="num"><small>STEP</small><b>1</b></span>
+      <span class="step-title">自宅PCのウイルススキャン
+        <span class="badges"><span class="badge badge-done">完了</span><span class="badge badge-skip">スキップ可</span></span>
+      </span>
+      <span class="chev" aria-hidden="true"></span>
+    </button>
+    <div class="step-body" id="body1">
+      <p class="why"><b>このSTEPの必要性：</b>自宅PCがウイルスに感染していると、これから入力する新しいパスワードも盗まれてしまいます。パスワードを変える前に、自宅PCが安全か確かめます。</p>
+
+      <p class="term">ウイルススキャン＝パソコンの中にウイルスがないか調べることです。</p>
+      <p>まず、どのウイルス対策ソフト（パソコンをウイルスから守るソフト）が動いているかを確認します。</p>
+      <ol class="tasks">
+        <li>画面左下（または中央）のスタートボタン横の検索欄に「<span class="ui">Windows セキュリティ</span>」と入力して開きます。</li>
+        <li><span class="ui">「ウイルスと脅威の防止」</span>を開きます。今動いているソフトの名前が表示されます。</li>
+      </ol>
+      <p>表示されたソフトの名前を下から選んで開き、その手順を行います。フルスキャン（パソコンの中を全部調べる方法）で調べます。</p>
+
+      <details class="sw">
+        <summary>何も入れていない人（Microsoft Defender）</summary>
+        <div>
+          <p class="term">Microsoft Defender＝Windowsに最初から入っているウイルス対策ソフトです。</p>
+          <ol class="tasks">
+            <li><span class="ui">「ウイルスと脅威の防止」</span>の画面で<span class="ui">「保護の更新」</span>をクリックします。</li>
+            <li><span class="ui">「更新プログラムのチェック」</span>をクリックします。<span class="term">（最新のウイルス情報に入れ替えてから調べるためです）</span></li>
+            <li>前の画面に戻り、<span class="ui">「スキャンのオプション」</span>をクリックします。</li>
+            <li><span class="ui">「フル スキャン」</span>を選びます。</li>
+            <li><span class="ui">「今すぐスキャン」</span>をクリックします。</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="sw">
+        <summary>ウイルスバスター クラウド</summary>
+        <div>
+          <p class="plain">まず、最新のウイルス情報に入れ替えます（公式がスキャンの前にすすめている作業です）。インターネットにつないだ状態で行います。</p>
+          <ol class="tasks">
+            <li>タスクトレイ（画面右下の、小さなアイコンが並ぶ所）のウイルスバスターのアイコンをクリックします。<span class="term">（見当たらない時は、タスクトレイの「△」などをクリックすると出てきます）</span></li>
+            <li>メニューの<span class="ui">「手動アップデート」</span>をクリックします。<span class="term">（再起動を求めるメッセージが出たら、使っているソフトを閉じてから<span class="ui">「はい」</span>をクリックします。再起動するとEAも止まるので、終わったらMT4/MT5とEAが動いているか確認してください）</span></li>
+          </ol>
+          <p class="plain">次に、フルスキャンをします。</p>
+          <ol class="tasks">
+            <li>デスクトップの「ウイルスバスター クラウド」のアイコンをダブルクリックして、メイン画面を開きます。<span class="term">（見当たらない時は、タスクトレイのアイコンをダブルクリック）</span></li>
+            <li>メイン画面で<span class="ui">「スキャン」</span>の横にある<span class="ui">「▼」</span>をクリックします。</li>
+            <li><span class="ui">「パソコン全体のスキャン」</span>を選びます。スキャンが始まります。</li>
+            <li>終わるまで待ちます。<span class="term">（パソコンによっては数時間かかります）</span></li>
+          </ol>
+          <p class="plain"><b>結果：</b><span class="ui">「脅威は検出されませんでした」</span>と出ればOKです。見つかって、すべて解決済み（「駆除済み」「削除済み」）なら、そのまま様子を見ます。<span class="ui">「再起動してください」</span>と出たら、パソコンを再起動して削除を終わらせます。それ以外の結果が出たら、トレンドマイクロのサポート窓口に問い合わせてください。</p>
+          <p class="term">公式ヘルプ：<a href="https://helpcenter.trendmicro.com/ja-jp/article/TMKA-12542" target="_blank" rel="noopener">ウイルスバスター クラウドのスキャン方法</a></p>
+        </div>
+      </details>
+
+      <details class="sw">
+        <summary>ノートン（ノートン 360 など）</summary>
+        <div>
+          <p class="plain">まず、最新のウイルス情報に入れ替えます。</p>
+          <ol class="tasks">
+            <li>タスクトレイ（画面右下の、小さなアイコンが並ぶ所）のノートンのアイコンをクリックして開きます。<span class="term">（見当たらない時は、スタートボタンをクリックして「ノートン」と入力し、出てきたノートンのアプリをクリック）</span></li>
+            <li>左側の<span class="ui">「セキュリティ」</span>をクリックします。</li>
+            <li><span class="ui">「ライブアップデート」</span>の<span class="ui">「開く」</span>をクリックします。</li>
+            <li><span class="ui">「今すぐ更新」</span>または<span class="ui">「今すぐ確認」</span>（画面に出ているほう）をクリックします。</li>
+            <li>終わったら<span class="ui">「完了」</span>をクリックします。</li>
+            <li>使っているソフトをすべて閉じて、パソコンを再起動します（公式の手順の最後にある作業です）。<span class="term">再起動するとEAも止まるので、終わったらMT4/MT5とEAが動いているか確認してください。</span></li>
+          </ol>
+          <p class="plain">次に、フルスキャンをします。ノートンでは「完全スキャン」という名前です。</p>
+          <ol class="tasks">
+            <li>ノートンを開き、左側の<span class="ui">「セキュリティ」</span>をクリックします。</li>
+            <li><span class="ui">「スキャン」</span>の<span class="ui">「開く」</span>をクリックします。</li>
+            <li><span class="ui">「プリセットスキャン」</span>タブを開きます。</li>
+            <li><span class="ui">「完全スキャン」</span>の<span class="ui">「開始」</span>をクリックします。</li>
+            <li>終わるまで待ちます。<span class="term">（数時間かかることがあります。初めてのスキャンは特に時間がかかる場合があります）</span></li>
+            <li>終わったら<span class="ui">「完了」</span>をクリックします。</li>
+          </ol>
+          <p class="plain"><b>結果：</b><span class="ui">「結果を表示する」</span>で確認できます。ノートンは、見つけた危ないものを自動でパソコンから取り除き、「検疫」（隔離と同じ。閉じ込めて動かなくすること）します。</p>
+          <p class="term">公式ヘルプ：<a href="https://support.norton.com/sp/ja/jp/home/current/solutions/v20240108122605356" target="_blank" rel="noopener">ノートンでスキャンを実行する方法</a></p>
+        </div>
+      </details>
+
+      <details class="sw">
+        <summary>それ以外（マカフィー、ESET、カスペルスキー、Avast など）</summary>
+        <div>
+          <p class="plain">次のソフトは、公式のヘルプで1操作ずつの手順を確かめきれなかったため、ここには手順を書いていません。公式ヘルプで「フルスキャン」（ソフトによって「完全スキャン」「詳細検査」など名前が違います）の手順を確認してください。</p>
+          <ul>
+            <li>マカフィー：<a href="https://www.mcafee.com/support/s/?language=ja" target="_blank" rel="noopener">マカフィー カスタマー サービス</a></li>
+            <li>ESET：<a href="https://eset-support.canon-its.jp/" target="_blank" rel="noopener">ESET サポート情報（キヤノンITソリューションズ）</a></li>
+            <li>カスペルスキー：<a href="https://support.kaspersky.co.jp/kaspersky-for-windows/21.27/70771" target="_blank" rel="noopener">カスペルスキー 公式ヘルプ（スキャン）</a></li>
+            <li>Avast：<a href="https://support.avast.com/avast/ja/jp/home/current/solutions/antivirus-pc-virus-scan" target="_blank" rel="noopener">アバスト 公式サポート（ウイルス スキャン）</a></li>
+          </ul>
+          <p class="term">上にないソフトも、そのソフトの公式ヘルプで確認してください。</p>
+        </div>
+      </details>
+
+      <div class="note"><b>注意：</b>スキャンには30分〜数時間かかります。<br>
+        「ブートタイム スキャン」や「Microsoft Defender オフライン スキャン」など、パソコンを再起動して調べる方法は、PCが再起動してEAが止まるので、今回はやらなくて大丈夫です。</div>
+
+      <p class="plain"><b>結果の見方：</b>脅威（ウイルスなどの危ないもの）が見つからなければOKです。見つかったら、画面の指示どおり<span class="ui">「削除」</span>または<span class="ui">「隔離」</span>（ウイルスを閉じ込めて動かなくすること）を選びます。</p>
+
+      <label class="done-check"><input type="checkbox" data-done="1">STEP 1 が終わった</label>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" data-step="2">
+    <button type="button" class="step-toggle" aria-expanded="false" aria-controls="body2">
+      <span class="num"><small>STEP</small><b>2</b></span>
+      <span class="step-title">Googleアカウントを守る
+        <span class="badges"><span class="badge badge-done">完了</span><span class="badge badge-skip">スキップ可</span></span>
+      </span>
+      <span class="chev" aria-hidden="true"></span>
+    </button>
+    <div class="step-body" id="body2">
+      <p class="target">対象：Q1が「はい」「わからない」の人</p>
+      <p class="skip-note">Q1で「いいえ」と答えたので、このステップは飛ばして大丈夫です。</p>
+      <p class="why"><b>このSTEPの必要性：</b>多くのサービスは、パスワードを忘れたときにメールで再設定できます。Gmailを乗っ取られると、犯人がその仕組みを使って、ほかのサービスも乗っ取れてしまいます。なので、ほかより先にメールを守ります。</p>
+
+      <p>自宅PCのブラウザで「myaccount.google.com」（Googleアカウント管理の画面）を自分で入力して開き、次を1つずつ行います。</p>
+      <ol class="tasks">
+        <li>パスワードを変更します。<br><span class="term">場所：<span class="ui">「セキュリティとログイン」</span>（画面によっては「セキュリティ」）→<span class="ui">「Google にログインする方法」</span>の<span class="ui">「パスワード」</span></span></li>
+        <li>身に覚えのない端末をログアウトさせます。<br><span class="term">場所：<span class="ui">「セキュリティとログイン」</span>→<span class="ui">「お使いのデバイス」</span>→<span class="ui">「すべてのデバイスを管理」</span>。「Windows」と表示されている端末のうち、場所や時期に心当たりのないものを選び、<span class="ui">「ログアウト」</span>をクリックします。VPSのChromeもここでログアウトしてかまいません。</span></li>
+        <li>2段階認証プロセス（パスワードに加えて、スマホに届く番号なども入力する仕組み）を設定します。<br><span class="term">場所：<span class="ui">「セキュリティとログイン」</span>→<span class="ui">「Google にログインする方法」</span>→<span class="ui">「2 段階認証プロセス」</span>。あとは画面の案内どおりに進めます。</span></li>
+        <li>再設定用（パスワードを忘れたときの連絡先）のメールアドレスと電話番号が、自分のものか確認します。知らないものがあれば変更します。<br><span class="term">場所：<span class="ui">「セキュリティとログイン」</span>→<span class="ui">「Google にログインする方法」</span>→<span class="ui">「再設定用のメールアドレス」</span>／<span class="ui">「再設定用の電話番号」</span></span></li>
+        <li>Gmailの転送とフィルタを確認します。<b>PCのブラウザで行います</b>（公式の手順は、PCのブラウザで行う形で案内されています）。
+          <ul>
+            <li>Gmailの右上の<span class="ui">歯車マーク</span>→<span class="ui">「すべての設定を表示」</span>をクリックします。</li>
+            <li><span class="ui">「メール転送と POP/IMAP」</span>タブ（POP/IMAP＝メールソフトでGmailを読むための設定。ここでは触りません）を開きます。転送（届いたメールを別のアドレスへ自動で送る機能）に知らない転送先があれば、<span class="ui">「転送を無効にする」</span>を選び、<span class="ui">「変更を保存」</span>をクリックします。</li>
+            <li><span class="ui">「フィルタとブロック中のアドレス」</span>タブを開きます。フィルタ（届いたメールを自動で振り分けたり削除したりする設定）に作った覚えのないものがあれば削除します。</li>
+          </ul>
+          <span class="term">犯人は「メールを自分に転送する」「出金通知を自動で削除する」といった仕掛けを残すことがあるためです。</span>
+        </li>
+      </ol>
+      <p class="note"><b>補足：</b>VPSのChromeにパスワードを保存していた人は、passwords.google.com（Googleに保存したパスワードの一覧）を開き、並んでいるサービスのパスワードも変えてください（<a href="#" data-open="7">STEP 7</a>でまとめて行えます）。保存していなければ、この確認は不要です。</p>
+      <p class="term">ボタンや項目の名前は、画面の更新で変わる場合があります。</p>
+
+      <label class="done-check"><input type="checkbox" data-done="2">STEP 2 が終わった</label>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" data-step="3">
+    <button type="button" class="step-toggle" aria-expanded="false" aria-controls="body3">
+      <span class="num"><small>STEP</small><b>3</b></span>
+      <span class="step-title">お名前.com のアカウント
+        <span class="badges"><span class="badge badge-done">完了</span><span class="badge badge-skip">スキップ可</span></span>
+      </span>
+      <span class="chev" aria-hidden="true"></span>
+    </button>
+    <div class="step-body" id="body3">
+      <p class="why"><b>このSTEPの必要性：</b>お名前.comのアカウントは、VPSの契約や設定を管理する場所です。乗っ取られると、VPSを勝手に操作されるおそれがあります。</p>
+      <p>お名前.comの会員ページにログインして行います。お名前.comからのお知らせメールのリンクから開いてもかまいません。ただ、便乗した偽メールと見分けにくいので、確実に安全を優先したい人は、ブックマーク（よく見るページの登録）か、自分で入力したURL（ホームページの住所。https:// で始まる文字）から開いてください。</p>
+      <ol class="tasks">
+        <li>会員ID（お名前.comにログインするためのID）のパスワードを変更します。<br><span class="term">場所：右上の<span class="ui">「マイページ」</span>→<span class="ui">「ログイン情報の確認・変更」</span>→<span class="ui">「パスワードの変更」</span></span></li>
+        <li>二段階認証（パスワードに加えて、メールやスマホに届く番号も入力する仕組み）を設定します。<br><span class="term">場所：<span class="ui">「マイページ」</span>→<span class="ui">「ログイン情報の確認・変更」</span>→<span class="ui">「ログインセキュリティ」</span>→<span class="ui">「二段階認証設定」</span>の<span class="ui">「設定」</span>（メール認証かSMS認証を選びます）</span></li>
+      </ol>
+      <p class="term">メニューの名前や場所は、画面の更新で変わる場合があります。</p>
+
+      <label class="done-check"><input type="checkbox" data-done="3">STEP 3 が終わった</label>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" data-step="4">
+    <button type="button" class="step-toggle" aria-expanded="false" aria-controls="body4">
+      <span class="num"><small>STEP</small><b>4</b></span>
+      <span class="step-title">FX業者の会員ページ（例：XM）
+        <span class="badges"><span class="badge badge-done">完了</span><span class="badge badge-skip">スキップ可</span></span>
+      </span>
+      <span class="chev" aria-hidden="true"></span>
+    </button>
+    <div class="step-body" id="body4">
+      <p class="why"><b>このSTEPの必要性：</b>FX業者の会員ページは、入金・出金や口座の管理をする場所です。乗っ取られると、出金先を変えられてお金を引き出されるおそれがあります。</p>
+      <p>複数のFX業者を使っている人は、業者ごとに行います。</p>
+      <ol class="tasks">
+        <li>会員ページのパスワードを変更します。</li>
+        <li>2段階認証を設定します。<span class="term">（業者によっては用意されていない場合があります）</span></li>
+        <li>次の4つを<b>見て確認するだけ</b>にします（ここでは何も変更しません）。
+          <ul>
+            <li>ログイン履歴（いつ・どこからログインされたかの記録。見られる業者だけ）</li>
+            <li>取引履歴（身に覚えのない売買がないか）</li>
+            <li>出金先（お金を引き出す先。銀行口座や、仮想通貨のウォレット＝仮想通貨を入れておく財布）</li>
+            <li>全口座の残高とポジション（今持っている、決済前の取引）</li>
+          </ul>
+        </li>
+      </ol>
+      <p class="note"><b>身に覚えのないもの</b>があれば、すぐにFX業者のサポートへ連絡してください。</p>
+
+      <label class="done-check"><input type="checkbox" data-done="4">STEP 4 が終わった</label>
+    </div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="step" data-step="5">
+    <button type="button" class="step-toggle" aria-expanded="false" aria-controls="body5">
+      <span class="num"><small>STEP</small><b>5</b></span>
+      <span class="step-title">使っていない口座
+        <span class="badges"><span class="badge badge-done">完了</span><span class="badge badge-skip">スキップ可</span></span>
+      </span>
+      <span class="chev" aria-hidden="true"></span>
+    </button>
+    <div class="step-body" id="body5">
+      <p class="target">対象：Q2が「はい」の人</p>
+      <p class="skip-note">Q2で「いいえ」と答えたので、このステップは飛ばして大丈夫です。</p>
+      <p class="why"><b>このSTEPの必要性：</b>使っていない口座でも、お金が残っていれば盗まれるおそれがあります。お金を移して残高を0円にし、パスワードも変えておきます。</p>
+      <ol class="tasks">
+        <li>資金を、使用中の口座へ移します。<span class="term">（XMなら会員ページの<span class="ui">「資金振替」</span>から。名前は変わる場合があります）</span>移せない場合は出金します。</li>
+        <li>残高が0円になったことを確認します。</li>
+        <li>この口座の取引用パスワードを変更します。<span class="term">（やり方は<a href="#" data-open="6">STEP 6</a>の「パスワードの変え方」と同じです）</span><br><b>これで、この口座の対策は終わりです。</b></li>
+      </ol>
+      <p class="plain"><b>説明：</b>使わないつもりの口座でも、忘れて後から入金してしまうことがあります。そのとき古いパスワードのままだと、犯人に勝手に売買されるおそれがあるため、パスワードも変えておきます。</p>
+      <p class="plain">使っていない口座が休眠（しばらく使っていない扱い）や凍結（使えなくなること）になる条件、手数料がかかるかどうかは、<b>業者ごとに違います</b>。使っている業者の公式の説明で確認してください。業者によっては、止まった口座をあとから元に戻せるところもあります。<br>
+        <span class="term">例：XM公式の説明では、同じアカウントの中のすべてのリアル口座で90日間、取引・入出金・資金移動がないと休眠口座になり、残高がある口座からは毎月10ドルの手数料が差し引かれます。そのあと残高ゼロのまま90日たつと凍結され、凍結された口座は元に戻せません。<b>ほかの口座を使い続けていると、使っていない口座は休眠にならず、凍結もされません。</b></span></p>
+
+      <div class="sub">
+        <h3>より確実にしたい人は：解約する</h3>
+        <p>解約すると、その口座は二度と使えなくなります。忘れて後から入金してしまう心配も、パスワードの心配もなくなります。</p>
+        <ul>
+          <li>解約の手順は、使っている業者の公式の案内で確認してください。<span class="term">（例：XMは、会員ページで口座のメニューから<span class="ui">「口座を解約する」</span>）</span></li>
+          <li>残高が0円で、ポジションや注文（EAが出した注文も含む）が残っていないと解約できない業者があります。</li>
+          <li>解約すると、その口座の取引履歴が見られなくなる業者があります。確定申告に使う人は、先に保存しておきます。</li>
+        </ul>
+      </div>
+      <p class="note"><b>注意：</b>途中で「制限中」などと表示されたら、無理に続けず時間をおくか、FX業者のサポートに問い合わせてください。</p>
+
+      <label class="done-check"><input type="checkbox" data-done="5">STEP 5 が終わった</label>
+    </div>
+  </section>
+
+  <!-- STEP 6 -->
+  <section class="step" data-step="6">
+    <button type="button" class="step-toggle" aria-expanded="false" aria-controls="body6">
+      <span class="num"><small>STEP</small><b>6</b></span>
+      <span class="step-title">使用中の口座（MT4/MT5）
+        <span class="badges"><span class="badge badge-key">いちばん重要</span><span class="badge badge-done">完了</span><span class="badge badge-skip">スキップ可</span></span>
+      </span>
+      <span class="chev" aria-hidden="true"></span>
+    </button>
+    <div class="step-body" id="body6">
+      <p class="why"><b>このSTEPの必要性：</b>VPSのMT4/MT5でパスワードを保存してログインしていた場合、VPSの中に口座番号とパスワードが残っています。そのままだと、犯人に口座へログインされ、勝手に売買されるおそれがあります。ここが一番重要です。</p>
+      <p>この作業は、<a href="#" data-open="1">STEP 1</a>で安全を確かめた自宅PCなど、これからEAを動かすパソコンのMT4/MT5で行います（VPSでは行いません）。口座が複数ある人は、口座ごとに行います。</p>
+      <ol class="tasks">
+        <li>取引用パスワード（売買ができるパスワード。「マスターパスワード」とも呼ばれます）を変更します。</li>
+        <li>MT4/MT5に、新しいパスワードでログインし直します。<br><span class="term">場所：<span class="ui">「ファイル」</span>→<span class="ui">「取引口座にログイン」</span>。EAを動かすパソコンでは、ログイン画面の保存のチェックを入れたままにします（再起動のあと、自動でつながるようにするため）。</span></li>
+        <li>EAが動いているか確認します。
+          <ul>
+            <li>チャート（値動きのグラフ）の右上に、EAの名前とアイコンが出ているか（MT4は笑顔のマーク。「自動売買が無効」を示す表示のときは、EAは取引できません）</li>
+            <li>画面下の<span class="ui">「エキスパート」</span>タブ（EAの動作記録）に、エラーが出ていないか</li>
+          </ul>
+        </li>
+      </ol>
+      <div class="note"><b>パスワードの変え方：</b>業者によって違います。使っている業者の公式の案内で確認してください。以下はXMの例です。
+        <p class="plain"><b>XMの会員ページから変える場合</b></p>
+        <ol class="tasks">
+          <li>会員ページにログインし、<span class="ui">「口座の管理」</span>をクリックします。</li>
+          <li><span class="ui">「MetaTraderパスワードの変更」</span>をクリックします。</li>
+          <li>新しいパスワードを入力し、<span class="ui">「パスワードを変更する」</span>をクリックします。</li>
+          <li>メールまたは認証アプリに出た6桁のコードを入力し、<span class="ui">「コードを認証」</span>をクリックします。</li>
+          <li><span class="ui">「お客様の取引口座のパスワードが変更されました。」</span>と出たら完了です。</li>
+        </ol>
+        <p class="plain"><b>XMのMT4/MT5の画面から変える場合</b></p>
+        <ol class="tasks">
+          <li><span class="ui">「ツール」</span>→<span class="ui">「オプション」</span>をクリックします。</li>
+          <li><span class="ui">「サーバー」</span>の<span class="ui">「パスワード変更」</span>（MT5は<span class="ui">「変更」</span>）をクリックします。</li>
+          <li><span class="ui">「現在のパスワード」</span>に、今のパスワードを入れます。</li>
+          <li><span class="ui">「マスターパスワードの変更」</span>を選びます。</li>
+          <li>新しいパスワードを2回入れて、<span class="ui">「OK」</span>をクリックします。<span class="term">（MT4/MT5の画面から変えた場合、完了のお知らせは届きません）</span></li>
+        </ol>
+        <p class="term">表示名は、画面の更新やバージョンで違う場合があります。</p>
+      </div>
+      <p class="term">閲覧用（読み取り専用）パスワードを自分で設定して使っている人は、それも変えておくと安心です。</p>
+
+      <label class="done-check"><input type="checkbox" data-done="6">STEP 6 が終わった</label>
+    </div>
+  </section>
+
+  <!-- STEP 7 -->
+  <section class="step" data-step="7">
+    <button type="button" class="step-toggle" aria-expanded="false" aria-controls="body7">
+      <span class="num"><small>STEP</small><b>7</b></span>
+      <span class="step-title">使い回しのパスワードを変更
+        <span class="badges"><span class="badge badge-done">完了</span><span class="badge badge-skip">スキップ可</span></span>
+      </span>
+      <span class="chev" aria-hidden="true"></span>
+    </button>
+    <div class="step-body" id="body7">
+      <p class="why"><b>このSTEPの必要性：</b>犯人は、盗んだパスワードをほかのサービスでも試すことがあります。同じパスワードを使い回していると、そこからも乗っ取られてしまいます。</p>
+      <ol class="tasks">
+        <li>ここまでに変えたパスワードと同じものを使っている他のサービスを、すべて変更します。<br><span class="term">例：銀行、証券会社や他のFX業者、メール、ネットショッピング、SNS など</span></li>
+        <li>VPSにEAの認証キー（EAを使うための登録番号）や設定ファイルを置いていた場合は、それらも流出した可能性があるものとして扱います。<br><span class="term">キーの再発行ができるかどうかは、EAの販売元に確認してください。</span></li>
+      </ol>
+
+      <label class="done-check"><input type="checkbox" data-done="7">STEP 7 が終わった</label>
+    </div>
+  </section>
+
+  <!-- STEP 8 -->
+  <section class="step" data-step="8">
+    <button type="button" class="step-toggle" aria-expanded="false" aria-controls="body8">
+      <span class="num"><small>STEP</small><b>8</b></span>
+      <span class="step-title">自宅PCでEAを動かす場合の設定
+        <span class="badges"><span class="badge badge-done">完了</span><span class="badge badge-skip">スキップ可</span></span>
+      </span>
+      <span class="chev" aria-hidden="true"></span>
+    </button>
+    <div class="step-body" id="body8">
+      <p class="target">対象：VPSの代わりに、自宅PCでEAを動かす人</p>
+      <p class="why"><b>このSTEPの必要性：</b>VPSは24時間動き続けますが、自宅PCは設定を変えないと、しばらく触らないうちにスリープ（省電力の待機）に入ったり、Windowsの更新で勝手に再起動したりすることがあります。そのあいだMT4/MT5も止まり、EAが取引できなくなります。それを防ぐための設定です。</p>
+      <ol class="tasks">
+        <li>スリープ（しばらく触らないと省電力で止まる状態）を「なし」にします。<br><span class="term">場所（Windows 11の例）：<span class="ui">「設定」</span>→<span class="ui">「システム」</span>→<span class="ui">「電源とバッテリー」</span>（または「電源」）→<span class="ui">「画面、スリープ、休止状態のタイムアウト」</span>（または「画面とスリープ」）で、スリープの項目を<span class="ui">「なし」</span>にします。ノートPCは「電源に接続」と「バッテリ駆動」の両方を変えます。</span></li>
+        <li>休止状態（作業中の状態を保存して電源を切る機能）も止めます。<br><span class="term">同じ画面に休止状態の項目があれば<span class="ui">「なし」</span>にします。無い場合は、<span class="ui">「コントロールパネル」</span>（Windowsの昔からある設定画面）→<span class="ui">「電源オプション」</span>→<span class="ui">「詳細な電源設定の変更」</span>→<span class="ui">「スリープ」</span>→<span class="ui">「次の時間が経過後休止状態にする」</span>を0にします。この項目自体が出ない機種もあります。</span></li>
+        <li>Windows Update（Windowsの自動更新）の「アクティブ時間」（PCを使う時間帯。この間は更新のための自動再起動をしない）を設定します。<br><span class="term">場所（Windows 11の例）：<span class="ui">「設定」</span>→<span class="ui">「Windows Update」</span>→<span class="ui">「詳細オプション」</span>→<span class="ui">「アクティブ時間」</span></span></li>
+      </ol>
+      <p class="note"><b>注意：</b>アクティブ時間は1日24時間すべてには設定できず（最大18時間）、それ以外の時間帯に再起動されることがあります。再起動の後は、MT4/MT5とEAが動いているか確認してください。</p>
+      <p class="term">表示名は、Windowsのバージョンで違う場合があります。</p>
+
+      <label class="done-check"><input type="checkbox" data-done="8">STEP 8 が終わった</label>
+    </div>
+  </section>
+
+  <!-- STEP 9 -->
+  <section class="step" data-step="9">
+    <button type="button" class="step-toggle" aria-expanded="false" aria-controls="body9">
+      <span class="num"><small>STEP</small><b>9</b></span>
+      <span class="step-title">VPSが再開したら
+        <span class="badges"><span class="badge badge-done">完了</span><span class="badge badge-skip">スキップ可</span></span>
+      </span>
+      <span class="chev" aria-hidden="true"></span>
+    </button>
+    <div class="step-body" id="body9">
+      <p class="why"><b>このSTEPの必要性：</b>止まる前のVPSには、不正なプログラムが残っているかもしれません。そのまま使うと、また情報を盗まれるおそれがあります。</p>
+      <p>再開の時期は未定です（2026年10月24日時点）。公式のお知らせで確認してください。</p>
+
+      <div class="sub">
+        <h3>使い続ける場合</h3>
+        <ol class="tasks">
+          <li>OS（Windowsなど、パソコンの土台になるソフト）を初期化します。<span class="term">（初期化＝中身を全部消して、最初の状態に戻すこと）</span></li>
+          <li>リモートデスクトップ（自宅PCからVPSを操作する仕組み）のパスワードを新しくします。</li>
+          <li>MT4/MT5を入れ直します。</li>
+        </ol>
+      </div>
+      <div class="sub">
+        <h3>使わない場合</h3>
+        <ol class="tasks">
+          <li>解約します。</li>
+        </ol>
+      </div>
+      <p class="note"><b>注意：</b>再開後、初期化する前の古いVPSで、他のサイトにログインしないでください。</p>
+
+      <label class="done-check"><input type="checkbox" data-done="9">STEP 9 が終わった</label>
+    </div>
+  </section>
+
+  <div class="tools">
+    <button type="button" class="btn-reset" id="resetBtn">すべてのチェックを外す</button>
+  </div>
+
+  <section class="warn" aria-labelledby="warnTitle">
+    <h2 id="warnTitle">偽メール・偽電話に注意</h2>
+    <ul>
+      <li>今回の件に便乗した偽メール・偽電話（フィッシング＝本物そっくりのメールや電話で、パスワードなどを盗む手口）に注意してください。お名前.comは、パスワードやクレジットカード情報をメールや電話で聞くことはない、と公式に案内しています。</li>
+      <li>本物のお知らせメールのリンクから開いてもかまいませんが、偽メールと見分けにくいことがあります。確実に安全を優先したい人は、メールの中のリンクは使わず、ブックマークや自分で入力したURLから開いてください。</li>
+    </ul>
+  </section>
+
+  <h2>よくある質問</h2>
+  <details class="faq">
+    <summary>パスワードはどう決めればいい？</summary>
+    <div>長め（12文字以上）にして、他のサービスと使い回さないようにします。パスワード管理アプリ（たくさんのパスワードを安全に覚えておいてくれるアプリ）の利用も検討してください。</div>
+  </details>
+  <details class="faq">
+    <summary>ウイルス対策ソフトによって、スキャンのやり方は違うの？</summary>
+    <div>違います。今動いているソフトで行ってください（<a href="#" data-open="1">STEP 1</a>を参照）。</div>
+  </details>
+  <details class="faq">
+    <summary>VPSでパスワードを作ったり保存したりしていない場合は？</summary>
+    <div>passwords.google.com（Googleに保存したパスワードの一覧）の確認は不要です。ただし、MT4/MT5の口座パスワードの変更（<a href="#" data-open="6">STEP 6</a>）は必要です。</div>
+  </details>
+  <details class="faq">
+    <summary>使っていない口座は、解約しないといけない？</summary>
+    <div>しなくても大丈夫です。残高を0円にして、パスワードを変えておけば、危険はふさげます。より確実にしたい人は、解約もできます（<a href="#" data-open="5">STEP 5</a>を参照）。</div>
+  </details>
+
+</main>
+
+<div class="wrap">
+  <footer>
+    <p><b>出典</b></p>
+    <ul>
+      <li><a href="https://www.onamae.com/news/article/11584" target="_blank" rel="noopener">お名前.com 公式のお知らせ</a></li>
+      <li>XMの休眠口座・凍結の条件：<a href="https://fxplus.xmtrading.com/media/2026040701.html" target="_blank" rel="noopener">XMTrading公式の解説記事「XMの解約手順とは？」</a>（2026年9月29日更新）</li>
+    </ul>
+    <p>画面の表示名は、ソフトやバージョンによって異なる場合があります。</p>
+    <p>個人が作成した非公式の手順まとめです。2026年10月24日時点の情報です。</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = "vps-security-roadmap-v1";
+  var TOTAL = 9;
+  var state = { done: {}, q1: null, q2: null };
+
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (saved && typeof saved === "object") {
+      if (saved.done && typeof saved.done === "object") state.done = saved.done;
+      if (typeof saved.q1 === "string") state.q1 = saved.q1;
+      if (typeof saved.q2 === "string") state.q2 = saved.q2;
+    }
+  } catch (e) {}
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  var steps = Array.prototype.slice.call(document.querySelectorAll(".step"));
+  function stepEl(n) { return document.querySelector('.step[data-step="' + n + '"]'); }
+
+  // 「わからない」は「はい」と同じ扱い
+  function skipped() {
+    var s = {};
+    if (state.q1 === "no") s[2] = true;
+    if (state.q2 === "no") s[5] = true;
+    return s;
+  }
+
+  function setOpen(el, open) {
+    el.classList.toggle("open", open);
+    el.querySelector(".step-toggle").setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  function render() {
+    var sk = skipped();
+    var done = 0, target = 0, skipCount = 0;
+    steps.forEach(function (el) {
+      var n = el.getAttribute("data-step");
+      var isDone = !!state.done[n];
+      var isSkip = !!sk[n];
+      el.classList.toggle("is-done", isDone);
+      el.classList.toggle("is-skip", isSkip);
+      el.querySelector("input[data-done]").checked = isDone;
+      if (isSkip && !isDone) { skipCount++; return; }
+      target++;
+      if (isDone) done++;
+    });
+    var text = done + " / " + target + " 完了";
+    document.getElementById("progressText").innerHTML = text + (skipCount ? " <small>（スキップ可 " + skipCount + "）</small>" : "");
+    var bar = document.getElementById("bar");
+    bar.setAttribute("aria-valuemax", String(target));
+    bar.setAttribute("aria-valuenow", String(done));
+    document.getElementById("barFill").style.width = (target ? done / target * 100 : 0) + "%";
+    document.getElementById("allDone").classList.toggle("show", target > 0 && done === target);
+
+    ["q1", "q2"].forEach(function (q) {
+      Array.prototype.forEach.call(document.querySelectorAll('input[name="' + q + '"]'), function (r) {
+        r.checked = r.value === state[q];
+      });
+    });
+
+    var msg;
+    if (!state.q1 || !state.q2) {
+      msg = "まだ答えていない質問があります。答えなくても、全部のステップを進めれば大丈夫です。";
+    } else {
+      var list = [];
+      if (sk[2]) list.push("STEP 2");
+      if (sk[5]) list.push("STEP 5");
+      msg = list.length ? list.join(" と ") + " はスキップできます。それ以外を上から順に進めてください。"
+                        : "全部のステップが対象です。上から順に進めてください。";
+    }
+    document.getElementById("qResult").textContent = msg;
+  }
+
+  // 次の未完了ステップを開く（スキップ可は飛ばす）
+  function openNextFrom(n) {
+    var sk = skipped();
+    for (var i = n + 1; i <= TOTAL; i++) {
+      if (!state.done[i] && !sk[i]) {
+        var el = stepEl(i);
+        setOpen(el, true);
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+    }
+  }
+
+  steps.forEach(function (el) {
+    var n = Number(el.getAttribute("data-step"));
+    el.querySelector(".step-toggle").addEventListener("click", function () {
+      setOpen(el, !el.classList.contains("open"));
+    });
+    el.querySelector("input[data-done]").addEventListener("change", function (e) {
+      if (e.target.checked) state.done[n] = true; else delete state.done[n];
+      save();
+      render();
+      if (e.target.checked) {
+        setOpen(el, false);
+        openNextFrom(n);
+      }
+    });
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.choices input'), function (r) {
+    r.addEventListener("change", function () {
+      state[r.name] = r.value;
+      save();
+      render();
+    });
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    if (!window.confirm("すべてのチェックを外しますか？（質問の答えはそのまま残ります）")) return;
+    state.done = {};
+    save();
+    render();
+    steps.forEach(function (el) { setOpen(el, el.getAttribute("data-step") === "1"); });
+    stepEl(1).scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll("a[data-open]"), function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      var el = stepEl(a.getAttribute("data-open"));
+      setOpen(el, true);
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+
+  // 印刷のときは、ソフトごとの手順とよくある質問もすべて開く
+  var faqs = Array.prototype.slice.call(document.querySelectorAll("details"));
+  var faqWasOpen = [];
+  window.addEventListener("beforeprint", function () {
+    faqWasOpen = faqs.map(function (d) { return d.open; });
+    faqs.forEach(function (d) { d.open = true; });
+  });
+  window.addEventListener("afterprint", function () {
+    faqs.forEach(function (d, i) { d.open = !!faqWasOpen[i]; });
+  });
+
+  render();
+  // 最初は STEP 1 だけ開く（STEP 1 が完了済みなら、最初の未完了ステップを開く）
+  if (!state.done[1]) setOpen(stepEl(1), true); else openNextFromNoScroll();
+  function openNextFromNoScroll() {
+    var sk = skipped();
+    for (var i = 1; i <= TOTAL; i++) {
+      if (!state.done[i] && !sk[i]) { setOpen(stepEl(i), true); return; }
+    }
+  }
+})();
+</script>
+</body>
+</html>
