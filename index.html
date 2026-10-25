@@ -129,6 +129,7 @@ h2 { font-size: 1.3rem; margin: 36px 0 12px; line-height: 1.5; }
 
 /* ステップ */
 .step {
+  scroll-margin-top: 100px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -292,9 +293,9 @@ footer ul { padding-left: 1.2em; }
   <header class="top">
     <h1>VPS不正アクセス後にやること ロードマップ</h1>
     <p class="lead">上から順番に進めれば大丈夫です。終わったらチェックを入れてください。</p>
-    <p class="meta">2026年10月24日時点の情報<br>
-      公式発表：<a href="https://www.onamae.com/news/article/11584" target="_blank" rel="noopener">お名前.com のお知らせ（新しいタブで開きます）</a></p>
-    <p class="meta">VPS（自宅のパソコンの代わりに24時間動かせる、ネット上の貸しパソコン）で、EA（MT4/MT5という取引ソフトで自動売買をするプログラム）を動かしていた人向けです。</p>
+    <p class="meta">2026年10月25日時点の情報<br>
+      公式発表：<a href="https://www.onamae.com/news/list/?c=information" target="_blank" rel="noopener">お名前.com のお知らせ一覧（新しいタブで開きます）</a>。公式のお知らせは第5報まで出ています。最新は一覧で確認してください。</p>
+    <p class="meta">お名前.com の「デスクトップクラウド」（VPS＝自宅のパソコンの代わりに24時間動かせる、ネット上の貸しパソコン）で、EA（MT4/MT5という取引ソフトで自動売買をするプログラム）を動かしていた人向けです。</p>
   </header>
 </div>
 
@@ -399,7 +400,7 @@ footer ul { padding-left: 1.2em; }
             <li><span class="ui">「ライブアップデート」</span>の<span class="ui">「開く」</span>をクリックします。</li>
             <li><span class="ui">「今すぐ更新」</span>または<span class="ui">「今すぐ確認」</span>（画面に出ているほう）をクリックします。</li>
             <li>終わったら<span class="ui">「完了」</span>をクリックします。</li>
-            <li>使っているソフトをすべて閉じて、パソコンを再起動します（公式の手順の最後にある作業です）。<span class="term">再起動するとEAも止まるので、終わったらMT4/MT5とEAが動いているか確認してください。</span></li>
+            <li>再起動を求められたら、使っているソフトを閉じてから再起動します。<span class="term">再起動するとEAも止まるので、終わったらMT4/MT5とEAが動いているか確認してください。</span></li>
           </ol>
           <p class="plain">次に、フルスキャンをします。ノートンでは「完全スキャン」という名前です。</p>
           <ol class="tasks">
@@ -430,7 +431,7 @@ footer ul { padding-left: 1.2em; }
       </details>
 
       <div class="note"><b>注意：</b>スキャンには30分〜数時間かかります。<br>
-        「ブートタイム スキャン」や「Microsoft Defender オフライン スキャン」など、パソコンを再起動して調べる方法は、PCが再起動してEAが止まるので、今回はやらなくて大丈夫です。</div>
+        「ブートタイム スキャン」や「Microsoft Defender オフライン スキャン」など、パソコンを再起動して調べる方法は、PCが再起動してEAが止まるので、通常はこの手順に含めません。ただし、ウイルス対策ソフトが「オフライン スキャンが必要」などと知らせてきた場合は、EAが止まることを承知のうえで、案内どおりに実行してください（Microsoft Defender のオフライン スキャンは約15分で、終わると自動で再起動します）。</div>
 
       <p class="plain"><b>結果の見方：</b>脅威（ウイルスなどの危ないもの）が見つからなければOKです。見つかったら、画面の指示どおり<span class="ui">「削除」</span>または<span class="ui">「隔離」</span>（ウイルスを閉じ込めて動かなくすること）を選びます。</p>
 
@@ -546,7 +547,7 @@ footer ul { padding-left: 1.2em; }
       </ol>
       <p class="plain"><b>説明：</b>使わないつもりの口座でも、忘れて後から入金してしまうことがあります。そのとき古いパスワードのままだと、犯人に勝手に売買されるおそれがあるため、パスワードも変えておきます。</p>
       <p class="plain">使っていない口座が休眠（しばらく使っていない扱い）や凍結（使えなくなること）になる条件、手数料がかかるかどうかは、<b>業者ごとに違います</b>。使っている業者の公式の説明で確認してください。業者によっては、止まった口座をあとから元に戻せるところもあります。<br>
-        <span class="term">例：XM公式の説明では、同じアカウントの中のすべてのリアル口座で90日間、取引・入出金・資金移動がないと休眠口座になり、残高がある口座からは毎月10ドルの手数料が差し引かれます。そのあと残高ゼロのまま90日たつと凍結され、凍結された口座は元に戻せません。<b>ほかの口座を使い続けていると、使っていない口座は休眠にならず、凍結もされません。</b></span></p>
+        <span class="term">例：XM公式の説明では、同じアカウントの中のすべてのリアル口座で90日間、取引・入出金・資金移動がないと休眠口座になり、残高がある口座からは毎月10ドルの手数料が差し引かれます。そのあと残高ゼロのまま90日たつと凍結され、凍結された口座は元に戻せません。</span></p>
 
       <div class="sub">
         <h3>より確実にしたい人は：解約する</h3>
@@ -555,6 +556,7 @@ footer ul { padding-left: 1.2em; }
           <li>解約の手順は、使っている業者の公式の案内で確認してください。<span class="term">（例：XMは、会員ページで口座のメニューから<span class="ui">「口座を解約する」</span>）</span></li>
           <li>残高が0円で、ポジションや注文（EAが出した注文も含む）が残っていないと解約できない業者があります。</li>
           <li>解約すると、その口座の取引履歴が見られなくなる業者があります。確定申告に使う人は、先に保存しておきます。</li>
+          <li>身に覚えのない取引があった口座は、解約する前に取引履歴を保存してください。お名前.com の補償の申請で、取引の記録の提出を求められることがあります（第4報）。</li>
         </ul>
       </div>
       <p class="note"><b>注意：</b>途中で「制限中」などと表示されたら、無理に続けず時間をおくか、FX業者のサポートに問い合わせてください。</p>
@@ -574,9 +576,10 @@ footer ul { padding-left: 1.2em; }
     </button>
     <div class="step-body" id="body6">
       <p class="why"><b>このSTEPの必要性：</b>VPSのMT4/MT5でパスワードを保存してログインしていた場合、VPSの中に口座番号とパスワードが残っています。そのままだと、犯人に口座へログインされ、勝手に売買されるおそれがあります。ここが一番重要です。</p>
-      <p>この作業は、<a href="#" data-open="1">STEP 1</a>で安全を確かめた自宅PCなど、これからEAを動かすパソコンのMT4/MT5で行います（VPSでは行いません）。口座が複数ある人は、口座ごとに行います。</p>
+      <p>パスワードの変更は、FX取引に使っていない端末（スマホや別のパソコン）から、業者の会員ページで行ってください（お名前.com 第5報）。XMなら、スマホのXMアプリ（XMTD TraderPro）でも、<span class="ui">「口座の管理」</span>→<span class="ui">「MetaTraderパスワードの変更」</span>から、下の「パスワードの変え方」と同じ流れで変えられます（<a href="https://fxplus.xmtrading.com/userguide-app/password-change.html" target="_blank" rel="noopener">XM公式ガイド</a>）。そのあと、<a href="#" data-open="1">STEP 1</a>で安全を確かめた自宅PCなど、これからEAを動かすパソコンのMT4/MT5に、新しいパスワードでログインし直します（VPSでは行いません）。口座が複数ある人は、口座ごとに行います。</p>
       <ol class="tasks">
         <li>取引用パスワード（売買ができるパスワード。「マスターパスワード」とも呼ばれます）を変更します。</li>
+        <li>パスワードを変えたら、その業者でログイン中の接続（セッション）を全部切ります。お名前.com は、パスワードを変えたあとも業者のサーバーの仕様によってはしばらく古い接続が残り、第三者が取引を続けられる場合があるとして、業者の案内やマイページなどで全セッションを切るか、業者の窓口に切断を依頼するよう求めています。すでにパスワードを変えた人も、必ず行うよう求めています（第5報）。<br><span class="term">（説明）犯人がVPSから口座番号とパスワードを盗んでいた場合、VPSとは別のパソコンからログインしていることがあり、その接続はVPSが止まっても切れません。自分のパソコンのMT4/MT5で口座を外しても、この接続は切れません。</span></li>
         <li>MT4/MT5に、新しいパスワードでログインし直します。<br><span class="term">場所：<span class="ui">「ファイル」</span>→<span class="ui">「取引口座にログイン」</span>。EAを動かすパソコンでは、ログイン画面の保存のチェックを入れたままにします（再起動のあと、自動でつながるようにするため）。</span></li>
         <li>EAが動いているか確認します。
           <ul>
@@ -594,7 +597,7 @@ footer ul { padding-left: 1.2em; }
           <li>メールまたは認証アプリに出た6桁のコードを入力し、<span class="ui">「コードを認証」</span>をクリックします。</li>
           <li><span class="ui">「お客様の取引口座のパスワードが変更されました。」</span>と出たら完了です。</li>
         </ol>
-        <p class="plain"><b>XMのMT4/MT5の画面から変える場合</b></p>
+        <p class="plain"><b>XMのMT4/MT5の画面から変える場合（FX取引に使っていない端末が無い場合）</b></p>
         <ol class="tasks">
           <li><span class="ui">「ツール」</span>→<span class="ui">「オプション」</span>をクリックします。</li>
           <li><span class="ui">「サーバー」</span>の<span class="ui">「パスワード変更」</span>（MT5は<span class="ui">「変更」</span>）をクリックします。</li>
@@ -614,15 +617,16 @@ footer ul { padding-left: 1.2em; }
   <section class="step" data-step="7">
     <button type="button" class="step-toggle" aria-expanded="false" aria-controls="body7">
       <span class="num"><small>STEP</small><b>7</b></span>
-      <span class="step-title">使い回しのパスワードを変更
+      <span class="step-title">VPSで使ったパスワードと、使い回しのパスワードを変更
         <span class="badges"><span class="badge badge-done">完了</span><span class="badge badge-skip">スキップ可</span></span>
       </span>
       <span class="chev" aria-hidden="true"></span>
     </button>
     <div class="step-body" id="body7">
-      <p class="why"><b>このSTEPの必要性：</b>犯人は、盗んだパスワードをほかのサービスでも試すことがあります。同じパスワードを使い回していると、そこからも乗っ取られてしまいます。</p>
+      <p class="why"><b>このSTEPの必要性：</b>VPSの中に残っていたIDやパスワードは、盗まれた可能性があります。また犯人は、盗んだパスワードをほかのサービスでも試すことがあります。同じパスワードを使い回していると、そこからも乗っ取られてしまいます。</p>
       <ol class="tasks">
-        <li>ここまでに変えたパスワードと同じものを使っている他のサービスを、すべて変更します。<br><span class="term">例：銀行、証券会社や他のFX業者、メール、ネットショッピング、SNS など</span></li>
+        <li>VPSの中に保存したり、VPSで使ったりしていたIDとパスワード、それにブラウザに保存しているIDとパスワードは、すべて変更するよう、お名前.com が求めています（第5報）。<br><span class="term">（説明）VPSでログインしたサービス、VPSのブラウザ（Chrome・Edge・Firefoxなど）に保存したもの、VPSのメモやファイルに書いていたものが当てはまります。</span></li>
+        <li>ここまでに変えたパスワードと同じものを使っている他のサービスも、すべて変更するよう、お名前.com が求めています（第5報）。<br><span class="term">例：銀行、証券会社や他のFX業者、メール、ネットショッピング、SNS など</span></li>
         <li>VPSにEAの認証キー（EAを使うための登録番号）や設定ファイルを置いていた場合は、それらも流出した可能性があるものとして扱います。<br><span class="term">キーの再発行ができるかどうかは、EAの販売元に確認してください。</span></li>
       </ol>
 
@@ -658,30 +662,19 @@ footer ul { padding-left: 1.2em; }
   <section class="step" data-step="9">
     <button type="button" class="step-toggle" aria-expanded="false" aria-controls="body9">
       <span class="num"><small>STEP</small><b>9</b></span>
-      <span class="step-title">VPSが再開したら
+      <span class="step-title">お名前.com からの案内を待つ
         <span class="badges"><span class="badge badge-done">完了</span><span class="badge badge-skip">スキップ可</span></span>
       </span>
       <span class="chev" aria-hidden="true"></span>
     </button>
     <div class="step-body" id="body9">
-      <p class="why"><b>このSTEPの必要性：</b>止まる前のVPSには、不正なプログラムが残っているかもしれません。そのまま使うと、また情報を盗まれるおそれがあります。</p>
-      <p>再開の時期は未定です（2026年10月24日時点）。公式のお知らせで確認してください。</p>
-
-      <div class="sub">
-        <h3>使い続ける場合</h3>
-        <ol class="tasks">
-          <li>OS（Windowsなど、パソコンの土台になるソフト）を初期化します。<span class="term">（初期化＝中身を全部消して、最初の状態に戻すこと）</span></li>
-          <li>リモートデスクトップ（自宅PCからVPSを操作する仕組み）のパスワードを新しくします。</li>
-          <li>MT4/MT5を入れ直します。</li>
-        </ol>
-      </div>
-      <div class="sub">
-        <h3>使わない場合</h3>
-        <ol class="tasks">
-          <li>解約します。</li>
-        </ol>
-      </div>
-      <p class="note"><b>注意：</b>再開後、初期化する前の古いVPSで、他のサイトにログインしないでください。</p>
+      <p class="why"><b>このSTEPの必要性：</b>今のVPSは、そのまま再開されないことになりました。これからの使い方や契約の扱いは、公式の案内を見てから決めるためです。</p>
+      <p class="plain">お名前.com は、不正アクセスを受けた今のVPS（デスクトップクラウド）を、そのまま再開しないと発表しています。引き続きWindowsのデスクトップ環境を使いたい人には、別のクラウド基盤の代替サービスへの乗り換えが案内され、乗り換え後6か月は無料です。本人の同意なしに移行されることはありません。提供の開始時期、申し込み方法、乗り換えない人の契約と料金の扱いは、10月30日（金）23:59までにメールで届く予定です。お見舞金（今の利用者全員に一律5,000円）の手続きも、同じく10月30日までにメールで届く予定です（<a href="https://www.onamae.com/news/article/11598" target="_blank" rel="noopener">第4報</a>）。</p>
+      <ol class="tasks">
+        <li>10月30日までに届くメールの案内を待ちます。</li>
+        <li>届いた案内が本物か、公式のお知らせのページに同じ内容が載っているかで確かめます。</li>
+        <li>解約や乗り換えは、案内を読んでから決めます。</li>
+      </ol>
 
       <label class="done-check"><input type="checkbox" data-done="9">STEP 9 が終わった</label>
     </div>
@@ -694,7 +687,9 @@ footer ul { padding-left: 1.2em; }
   <section class="warn" aria-labelledby="warnTitle">
     <h2 id="warnTitle">偽メール・偽電話に注意</h2>
     <ul>
-      <li>今回の件に便乗した偽メール・偽電話（フィッシング＝本物そっくりのメールや電話で、パスワードなどを盗む手口）に注意してください。お名前.comは、パスワードやクレジットカード情報をメールや電話で聞くことはない、と公式に案内しています。</li>
+      <li>今回の件に便乗した偽メール・偽電話（フィッシング＝本物そっくりのメールや電話で、パスワードなどを盗む手口）や、「補償」「返金」をうたう不審な連絡に注意してください。お名前.comは、メールや電話でパスワード・クレジットカード情報・口座情報などを聞くことはない、と案内しています（第3報）。</li>
+      <li>ただし、補償の手続きでは、本人確認書類や、取引履歴を確かめるための「閲覧専用パスワード」の提示を求める場合があり、その手順は別に案内する、と書かれています（第4報）。求められたら、まず公式のお知らせのページに同じ案内が載っているかを確かめてから進めてください。</li>
+      <li>犯人を名乗る者からメールやメッセージが届いたら、URLやファイルを開かず、返信もしないでください（第5報）。</li>
       <li>本物のお知らせメールのリンクから開いてもかまいませんが、偽メールと見分けにくいことがあります。確実に安全を優先したい人は、メールの中のリンクは使わず、ブックマークや自分で入力したURLから開いてください。</li>
     </ul>
   </section>
@@ -723,11 +718,13 @@ footer ul { padding-left: 1.2em; }
   <footer>
     <p><b>出典</b></p>
     <ul>
-      <li><a href="https://www.onamae.com/news/article/11584" target="_blank" rel="noopener">お名前.com 公式のお知らせ</a></li>
+      <li><a href="https://www.onamae.com/news/list/?c=information" target="_blank" rel="noopener">お名前.com 公式のお知らせ一覧</a>（第1報〜最新）</li>
+      <li><a href="https://www.onamae.com/news/article/11598" target="_blank" rel="noopener">お名前.com 第4報</a>（代替サービス・お見舞金・補償）</li>
+      <li><a href="https://www.onamae.com/news/article/11599" target="_blank" rel="noopener">お名前.com 第5報</a>（パスワード変更・全セッションの切断・保存したIDとパスワード）</li>
       <li>XMの休眠口座・凍結の条件：<a href="https://fxplus.xmtrading.com/media/2026040701.html" target="_blank" rel="noopener">XMTrading公式の解説記事「XMの解約手順とは？」</a>（2026年9月29日更新）</li>
     </ul>
     <p>画面の表示名は、ソフトやバージョンによって異なる場合があります。</p>
-    <p>個人が作成した非公式の手順まとめです。2026年10月24日時点の情報です。</p>
+    <p>個人が作成した非公式の手順まとめです。2026年10月25日時点の情報です。</p>
   </footer>
 </div>
 
